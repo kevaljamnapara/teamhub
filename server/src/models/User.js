@@ -68,10 +68,6 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// --------------- Indexes ---------------
-
-userSchema.index({ email: 1 }, { unique: true });
-
 // --------------- Pre-save Hook ---------------
 
 userSchema.pre('save', async function (next) {
