@@ -1,0 +1,2 @@
+# This directory is used for temporary file uploads.
+# Files are uploaded to Cloudinary and this directory is gitignored.
