@@ -40,3 +40,7 @@ Thumbs.db
 
 # Local files
 *.local
+
+# Server uploads
+server/src/uploads/*
+!server/src/uploads/.gitkeep
