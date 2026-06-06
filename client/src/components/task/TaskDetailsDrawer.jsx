@@ -9,14 +9,13 @@ import {
   PRIORITY_LABELS,
   PRIORITY_COLORS,
 } from "../../constants/status";
-import { mockUsers } from "../../mock/users";
 import { useState } from "react";
 
 export default function TaskDetailsDrawer({ task }) {
   const dispatch = useDispatch();
   const [commentText, setCommentText] = useState("");
   const isOpen = !!task;
-  const assignee = task ? mockUsers.find((u) => u.id === task.assigneeId) : null;
+  const assignee = null; // To be replaced with real user data
 
   const handleClose = () => dispatch(clearSelectedTask());
 
@@ -169,9 +168,7 @@ export default function TaskDetailsDrawer({ task }) {
                 </h4>
                 <div className="space-y-3 mb-4">
                   {task.comments?.map((comment) => {
-                    const commenter = mockUsers.find(
-                      (u) => u.id === comment.userId
-                    );
+                    const commenter = null; // To be replaced with real user data
                     return (
                       <div key={comment.id} className="flex gap-3">
                         <div className="w-7 h-7 rounded bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0">

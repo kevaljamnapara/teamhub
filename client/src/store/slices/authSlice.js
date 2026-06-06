@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { currentUser } from "../../mock/users";
 
 const initialState = {
   user: null,
@@ -72,7 +71,13 @@ export const performLogin = (credentials) => (dispatch) => {
     if (credentials.email && credentials.password) {
       dispatch(
         loginSuccess({
-          user: currentUser,
+          user: {
+            id: "u-1",
+            name: "Demo User",
+            email: credentials.email,
+            role: "member",
+            avatar: "",
+          },
           token: "mock-jwt-token-" + Date.now(),
         })
       );
@@ -86,10 +91,11 @@ export const performRegister = (data) => (dispatch) => {
   dispatch(loginStart());
   setTimeout(() => {
     const newUser = {
-      ...currentUser,
       name: data.name,
       email: data.email,
       id: "u-" + Date.now(),
+      role: "member",
+      avatar: "",
     };
     dispatch(register({ user: newUser, token: "mock-jwt-token-" + Date.now() }));
   }, 800);

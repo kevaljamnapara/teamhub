@@ -11,10 +11,7 @@ import {
   Calendar,
   MoreHorizontal,
 } from "lucide-react";
-import { cn, formatDate, getInitials } from "../../utils";
-import { mockUsers } from "../../mock/users";
-import { mockActivities } from "../../mock/activities";
-import { formatRelativeTime } from "../../utils";
+import { cn, formatDate, getInitials, formatRelativeTime } from "../../utils";
 import {
   TASK_STATUS_LABELS,
   TASK_STATUS_COLORS,
@@ -58,13 +55,9 @@ export default function ProjectDetailPage() {
     );
   }
 
-  const members = project.members
-    .map((mid) => mockUsers.find((u) => u.id === mid))
-    .filter(Boolean);
+  const members = []; // To be replaced with real user data
 
-  const projectActivities = mockActivities
-    .filter((a) => a.projectId === id)
-    .slice(0, 10);
+  const projectActivities = []; // To be replaced with real activity data
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -275,7 +268,7 @@ export default function ProjectDetailPage() {
           <div className="space-y-2">
             {tasks.length > 0 ? (
               tasks.map((task) => {
-                const assignee = mockUsers.find((u) => u.id === task.assigneeId);
+                const assignee = null; // To be replaced with real user data
                 return (
                   <div
                     key={task.id}
