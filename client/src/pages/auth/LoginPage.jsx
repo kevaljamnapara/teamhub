@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
-import { performLogin, setRememberMe } from "../../store/slices/authSlice";
+import { loginUser, setRememberMe } from "../../store/slices/authSlice";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -32,10 +32,11 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (data) => {
-    dispatch(performLogin(data));
-    // Navigate after mock delay
-    setTimeout(() => navigate("/dashboard"), 900);
+  const onSubmit = async (data) => {
+    const resultAction = await dispatch(loginUser(data));
+    if (loginUser.fulfilled.match(resultAction)) {
+      navigate("/dashboard");
+    }
   };
 
   return (
