@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
-import { performRegister } from "../../store/slices/authSlice";
+import { registerUser } from "../../store/slices/authSlice";
 
 const registerSchema = z
   .object({
@@ -27,7 +27,7 @@ const registerSchema = z
 export default function RegisterPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loading } = useSelector((state) => state.auth);
+  const { loading, error } = useSelector((state) => state.auth);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -62,9 +62,11 @@ export default function RegisterPage() {
     "bg-success-500",
   ];
 
-  const onSubmit = (data) => {
-    dispatch(performRegister(data));
-    setTimeout(() => navigate("/dashboard"), 900);
+  const onSubmit = async (data) => {
+    const resultAction = await dispatch(registerUser(data));
+    if (registerUser.fulfilled.match(resultAction)) {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -77,6 +79,16 @@ export default function RegisterPage() {
           Get started with TeamHub for free
         </p>
       </div>
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 rounded-xl bg-danger-50 dark:bg-danger-500/10 border border-danger-500/20 text-danger-600 dark:text-danger-500 text-sm"
+        >
+          {error}
+        </motion.div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         {/* Name */}
