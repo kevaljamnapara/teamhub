@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { toggleMobileSidebar } from "../../store/slices/uiSlice";
 import { selectUnreadCount } from "../../store/slices/notificationSlice";
-import { logout } from "../../store/slices/authSlice";
+import { logoutUser } from "../../store/slices/authSlice";
 import { useTheme } from "../../context/ThemeContext";
 import { cn, getInitials } from "../../utils";
 import { useIsMobile } from "../../hooks/useMediaQuery";
@@ -40,7 +40,7 @@ export default function TopNavbar() {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     navigate("/login");
   };
 

@@ -1,4 +1,7 @@
+import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCurrentUser } from "../store/slices/authSlice";
 import AuthLayout from "../layouts/AuthLayout";
 import AppLayout from "../layouts/AppLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -16,6 +19,24 @@ import SettingsPage from "../pages/settings/SettingsPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 export default function AppRoutes() {
+  const dispatch = useDispatch();
+  const { loading, isAuthenticated } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token && !isAuthenticated) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [dispatch, isAuthenticated]);
+
+  if (loading && !isAuthenticated) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[hsl(var(--background))]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <Routes>
       {/* Auth routes */}
