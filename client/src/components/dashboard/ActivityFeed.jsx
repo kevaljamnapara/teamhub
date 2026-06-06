@@ -8,7 +8,6 @@ import {
   GitBranch,
   AlertCircle,
 } from "lucide-react";
-import { mockActivities } from "../../mock/activities";
 import { formatRelativeTime, getInitials } from "../../utils";
 
 const ACTIVITY_ICONS = {
@@ -23,7 +22,7 @@ const ACTIVITY_ICONS = {
 };
 
 export default function ActivityFeed() {
-  const recentActivities = mockActivities.slice(0, 8);
+  const recentActivities = []; // To be replaced with real activity data
 
   return (
     <motion.div

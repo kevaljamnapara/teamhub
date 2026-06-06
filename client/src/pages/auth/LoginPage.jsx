@@ -27,8 +27,8 @@ export default function LoginPage() {
   } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "alex.johnson@teamhub.io",
-      password: "password123",
+      email: "",
+      password: "",
     },
   });
 

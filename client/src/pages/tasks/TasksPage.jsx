@@ -23,8 +23,6 @@ import CreateTaskModal from "../../components/task/CreateTaskModal";
 import TaskDetailsDrawer from "../../components/task/TaskDetailsDrawer";
 import { cn, formatDate, getInitials } from "../../utils";
 import { PRIORITY_LABELS, PRIORITY_COLORS } from "../../constants/status";
-import { mockUsers } from "../../mock/users";
-import { mockProjects } from "../../mock/projects";
 import toast from "react-hot-toast";
 
 export default function TasksPage() {
@@ -127,12 +125,8 @@ export default function TasksPage() {
               </thead>
               <tbody>
                 {tasks.map((task, index) => {
-                  const assignee = mockUsers.find(
-                    (u) => u.id === task.assigneeId
-                  );
-                  const project = mockProjects.find(
-                    (p) => p.id === task.projectId
-                  );
+                  const assignee = null; // To be replaced with real user data
+                  const project = null; // To be replaced with real project data
 
                   return (
                     <motion.tr
