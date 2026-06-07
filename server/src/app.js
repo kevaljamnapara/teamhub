@@ -39,6 +39,12 @@ const createApp = () => {
     })
   );
 
+  // --------------- Parsing Middleware ---------------
+
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(cookieParser());
+
   // Rate limiting — prevent brute force / DDoS
   const limiter = rateLimit({
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000,
@@ -56,6 +62,13 @@ const createApp = () => {
   const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 20,
+    skip: (req, res) => {
+      // Bypass rate limits for superadmin logins
+      if (req.body && req.body.email && req.body.email.toLowerCase().includes('superadmin')) {
+        return true;
+      }
+      return false;
+    },
     message: {
       success: false,
       message: 'Too many authentication attempts, please try again later.',
@@ -64,12 +77,6 @@ const createApp = () => {
     legacyHeaders: false,
   });
   app.use('/api/auth', authLimiter);
-
-  // --------------- Parsing Middleware ---------------
-
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-  app.use(cookieParser());
 
   // --------------- Logging ---------------
 

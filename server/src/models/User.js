@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const { USER_ROLE } = require('../constants');
 
 const userSchema = new mongoose.Schema(
@@ -44,10 +45,8 @@ const userSchema = new mongoose.Schema(
       enum: ['online', 'away', 'offline'],
       default: 'offline',
     },
-    refreshToken: {
-      type: String,
-      select: false,
-    },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   {
     timestamps: true,
@@ -58,7 +57,6 @@ const userSchema = new mongoose.Schema(
         delete ret._id;
         delete ret.__v;
         delete ret.password;
-        delete ret.refreshToken;
         return ret;
       },
     },
@@ -92,6 +90,26 @@ userSchema.pre('save', async function (next) {
  */
 userSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
+};
+
+/**
+ * Generate and hash password token
+ * @returns {string} Plain token to send in email
+ */
+userSchema.methods.getResetPasswordToken = function () {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire to 10 minutes
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.model('User', userSchema);
