@@ -1,8 +1,15 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import { Hexagon } from "lucide-react";
 
 export default function AuthLayout() {
+  const { isAuthenticated } = useSelector((state) => state.auth);
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   return (
     <div className="min-h-screen flex bg-[hsl(var(--background))]">
       {/* Left panel - Branding */}

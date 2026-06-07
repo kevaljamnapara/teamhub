@@ -9,8 +9,12 @@ const catchAsync = require('../utils/catchAsync');
 const protect = catchAsync(async (req, res, next) => {
   let token;
 
-  // Extract token from Authorization header
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  // Extract token from cookies first
+  if (req.cookies && req.cookies.accessToken) {
+    token = req.cookies.accessToken;
+  }
+  // Fallback to Authorization header
+  else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   }
 

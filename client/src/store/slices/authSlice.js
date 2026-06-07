@@ -3,7 +3,6 @@ import api from "../../services/api";
 
 const initialState = {
   user: null,
-  token: null,
   isAuthenticated: false,
   loading: false,
   error: null,
@@ -15,12 +14,11 @@ export const loginUser = createAsyncThunk(
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/login", credentials);
-      const { user, token } = response.data.data;
-      localStorage.setItem("token", token);
-      return { user, token };
+      const { user } = response.data.data;
+      return { user };
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Login failed. Please try again."
+        error.response?.data?.message || "Login failed. Please try again."
       );
     }
   }
@@ -31,12 +29,11 @@ export const registerUser = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const response = await api.post("/auth/register", formData);
-      const { user, token } = response.data.data;
-      localStorage.setItem("token", token);
-      return { user, token };
+      const { user } = response.data.data;
+      return { user };
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Registration failed. Please try again."
+        error.response?.data?.message || "Registration failed. Please try again."
       );
     }
   }
@@ -49,9 +46,8 @@ export const fetchCurrentUser = createAsyncThunk(
       const response = await api.get("/auth/me");
       return response.data.data;
     } catch (error) {
-      localStorage.removeItem("token");
       return rejectWithValue(
-        error.response?.data?.error || "Failed to fetch user."
+        error.response?.data?.message || "Failed to fetch user."
       );
     }
   }
@@ -62,11 +58,10 @@ export const logoutUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await api.post("/auth/logout");
-      localStorage.removeItem("token");
       return null;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.error || "Logout failed."
+        error.response?.data?.message || "Logout failed."
       );
     }
   }
@@ -97,7 +92,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.token;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -112,7 +106,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = true;
         state.user = action.payload.user;
-        state.token = action.payload.token;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
@@ -126,14 +119,12 @@ const authSlice = createSlice({
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload;
-        state.token = localStorage.getItem("token");
+        state.user = action.payload.user || action.payload;
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
-        state.token = null;
         state.error = action.payload;
       })
       // logoutUser
@@ -141,7 +132,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
-        state.token = null;
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state) => {
@@ -149,8 +139,6 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = false;
         state.user = null;
-        state.token = null;
-        localStorage.removeItem("token");
       });
   },
 });
