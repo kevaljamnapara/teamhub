@@ -1,22 +1,21 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
-import { registerUser } from "../../store/slices/authSlice";
+import { Eye, EyeOff, Lock, Loader2, ArrowLeft, CheckCircle } from "lucide-react";
+import api from "../../services/api";
 
-const registerSchema = z
+const resetSchema = z
   .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
     password: z
       .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
+      .min(6, "Password must be at least 6 characters")
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Password must contain at least one uppercase letter, one lowercase letter, and one number"
+      ),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -24,59 +23,82 @@ const registerSchema = z
     path: ["confirmPassword"],
   });
 
-export default function RegisterPage() {
-  const dispatch = useDispatch();
+export default function ResetPasswordPage() {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(resetSchema),
   });
 
-  const password = watch("password", "");
-
-  const getStrength = (pwd) => {
-    if (!pwd) return 0;
-    let s = 0;
-    if (pwd.length >= 8) s++;
-    if (/[A-Z]/.test(pwd)) s++;
-    if (/[0-9]/.test(pwd)) s++;
-    if (/[^A-Za-z0-9]/.test(pwd)) s++;
-    return s;
-  };
-
-  const strength = getStrength(password);
-  const strengthLabels = ["", "Weak", "Fair", "Good", "Strong"];
-  const strengthColors = [
-    "bg-surface-300",
-    "bg-danger-500",
-    "bg-warning-500",
-    "bg-primary-500",
-    "bg-success-500",
-  ];
-
   const onSubmit = async (data) => {
-    const resultAction = await dispatch(registerUser(data));
-    if (registerUser.fulfilled.match(resultAction)) {
-      navigate("/dashboard");
+    setLoading(true);
+    setError(null);
+    try {
+      await api.put(`/auth/resetpassword/${token}`, {
+        password: data.password,
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to reset password. Token might be invalid or expired."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
+  if (success) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="text-center"
+      >
+        <div className="mx-auto w-16 h-16 rounded-2xl bg-success-500/15 flex items-center justify-center mb-6">
+          <CheckCircle className="w-8 h-8 text-success-500" />
+        </div>
+        <h2 className="text-2xl font-bold text-[hsl(var(--foreground))] mb-2">
+          Password Reset Successful
+        </h2>
+        <p className="text-[hsl(var(--muted-foreground))] mb-8">
+          Your password has been successfully updated. Redirecting to login...
+        </p>
+        <Link
+          to="/login"
+          className="inline-flex items-center gap-2 text-sm text-primary-500 hover:text-primary-600 font-medium transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Click here if not redirected
+        </Link>
+      </motion.div>
+    );
+  }
+
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-[hsl(var(--foreground))]">
-          Create your account
+          Reset Password
         </h2>
         <p className="mt-2 text-[hsl(var(--muted-foreground))]">
-          Get started with TeamHub for free
+          Please enter your new password below.
         </p>
       </div>
 
@@ -91,52 +113,9 @@ export default function RegisterPage() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-        {/* Name */}
         <div>
           <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
-            Full Name
-          </label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-            <input
-              {...register("name")}
-              type="text"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-              placeholder="John Doe"
-            />
-          </div>
-          {errors.name && (
-            <p className="mt-1.5 text-xs text-danger-500">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
-            Email
-          </label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
-            <input
-              {...register("email")}
-              type="email"
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-              placeholder="you@example.com"
-            />
-          </div>
-          {errors.email && (
-            <p className="mt-1.5 text-xs text-danger-500">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-
-        {/* Password */}
-        <div>
-          <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
-            Password
+            New Password
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
@@ -158,26 +137,6 @@ export default function RegisterPage() {
               )}
             </button>
           </div>
-          {/* Password strength bar */}
-          {password && (
-            <div className="mt-2">
-              <div className="flex gap-1 mb-1">
-                {[1, 2, 3, 4].map((level) => (
-                  <div
-                    key={level}
-                    className={`h-1.5 flex-1 rounded-full transition-colors ${
-                      strength >= level
-                        ? strengthColors[strength]
-                        : "bg-surface-200 dark:bg-surface-700"
-                    }`}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
-                {strengthLabels[strength]}
-              </p>
-            </div>
-          )}
           {errors.password && (
             <p className="mt-1.5 text-xs text-danger-500">
               {errors.password.message}
@@ -185,10 +144,9 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Confirm Password */}
         <div>
           <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
-            Confirm Password
+            Confirm New Password
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[hsl(var(--muted-foreground))]" />
@@ -196,7 +154,7 @@ export default function RegisterPage() {
               {...register("confirmPassword")}
               type={showConfirm ? "text" : "password"}
               className="w-full pl-10 pr-12 py-2.5 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm placeholder:text-[hsl(var(--muted-foreground))] focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
-              placeholder="Confirm your password"
+              placeholder="Confirm your new password"
             />
             <button
               type="button"
@@ -217,7 +175,6 @@ export default function RegisterPage() {
           )}
         </div>
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
@@ -226,23 +183,13 @@ export default function RegisterPage() {
           {loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
-              Creating account...
+              Resetting...
             </>
           ) : (
-            "Create account"
+            "Reset Password"
           )}
         </button>
       </form>
-
-      <p className="mt-8 text-center text-sm text-[hsl(var(--muted-foreground))]">
-        Already have an account?{" "}
-        <Link
-          to="/login"
-          className="text-primary-500 hover:text-primary-600 font-medium transition-colors"
-        >
-          Sign in
-        </Link>
-      </p>
-    </div>
+    </motion.div>
   );
 }

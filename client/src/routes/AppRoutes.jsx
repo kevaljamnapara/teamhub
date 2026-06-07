@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCurrentUser } from "../store/slices/authSlice";
 import AuthLayout from "../layouts/AuthLayout";
 import AppLayout from "../layouts/AppLayout";
 import ProtectedRoute from "./ProtectedRoute";
@@ -6,6 +9,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 import DashboardPage from "../pages/dashboard/DashboardPage";
 import ProjectsPage from "../pages/projects/ProjectsPage";
 import ProjectDetailPage from "../pages/projects/ProjectDetailPage";
@@ -16,6 +20,27 @@ import SettingsPage from "../pages/settings/SettingsPage";
 import NotFoundPage from "../pages/NotFoundPage";
 
 export default function AppRoutes() {
+  const dispatch = useDispatch();
+  const { loading, isAuthenticated } = useSelector((state) => state.auth);
+
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!hasInitialized) {
+      dispatch(fetchCurrentUser()).finally(() => {
+        setHasInitialized(true);
+      });
+    }
+  }, [dispatch, hasInitialized]);
+
+  if (!hasInitialized || (loading && !isAuthenticated)) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-[hsl(var(--background))]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-500 border-t-transparent" />
+      </div>
+    );
+  }
+
   return (
     <Routes>
       {/* Auth routes */}
@@ -23,6 +48,7 @@ export default function AppRoutes() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
       </Route>
 
       {/* Protected routes */}

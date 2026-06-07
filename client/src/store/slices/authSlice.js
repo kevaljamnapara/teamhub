@@ -1,46 +1,76 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { currentUser } from "../../mock/users";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import api from "../../services/api";
 
 const initialState = {
   user: null,
-  token: null,
   isAuthenticated: false,
   loading: false,
   error: null,
   rememberMe: false,
 };
 
+export const loginUser = createAsyncThunk(
+  "auth/loginUser",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/login", credentials);
+      const { user } = response.data.data;
+      return { user };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
+    }
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const response = await api.post("/auth/register", formData);
+      const { user } = response.data.data;
+      return { user };
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Registration failed. Please try again."
+      );
+    }
+  }
+);
+
+export const fetchCurrentUser = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/auth/me");
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user."
+      );
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, { rejectWithValue }) => {
+    try {
+      await api.post("/auth/logout");
+      return null;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Logout failed."
+      );
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loginStart(state) {
-      state.loading = true;
-      state.error = null;
-    },
-    loginSuccess(state, action) {
-      state.loading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.error = null;
-    },
-    loginFailure(state, action) {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    register(state, action) {
-      state.loading = false;
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-    },
-    logout(state) {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      state.error = null;
-    },
     setRememberMe(state, action) {
       state.rememberMe = action.payload;
     },
@@ -51,48 +81,68 @@ const authSlice = createSlice({
       state.error = null;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // loginUser
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // registerUser
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // fetchCurrentUser
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user || action.payload;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.error = action.payload;
+      })
+      // logoutUser
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        // Even if the backend fails, clear the local state
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+      });
+  },
 });
 
-export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  register,
-  logout,
-  setRememberMe,
-  updateProfile,
-  clearError,
-} = authSlice.actions;
-
-// Thunks
-export const performLogin = (credentials) => (dispatch) => {
-  dispatch(loginStart());
-  // Simulate API call
-  setTimeout(() => {
-    if (credentials.email && credentials.password) {
-      dispatch(
-        loginSuccess({
-          user: currentUser,
-          token: "mock-jwt-token-" + Date.now(),
-        })
-      );
-    } else {
-      dispatch(loginFailure("Invalid email or password"));
-    }
-  }, 800);
-};
-
-export const performRegister = (data) => (dispatch) => {
-  dispatch(loginStart());
-  setTimeout(() => {
-    const newUser = {
-      ...currentUser,
-      name: data.name,
-      email: data.email,
-      id: "u-" + Date.now(),
-    };
-    dispatch(register({ user: newUser, token: "mock-jwt-token-" + Date.now() }));
-  }, 800);
-};
+export const { setRememberMe, updateProfile, clearError } = authSlice.actions;
 
 export default authSlice.reducer;

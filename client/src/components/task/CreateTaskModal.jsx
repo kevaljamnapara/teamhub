@@ -6,8 +6,6 @@ import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
 import { addTask } from "../../store/slices/taskSlice";
-import { mockUsers } from "../../mock/users";
-import { mockProjects } from "../../mock/projects";
 import toast from "react-hot-toast";
 
 const taskSchema = z.object({
@@ -129,7 +127,8 @@ export default function CreateTaskModal({ isOpen, onClose }) {
                       className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                     >
                       <option value="">Select project</option>
-                      {mockProjects.map((p) => (
+                      {/* Replaced mock projects with empty array placeholder */}
+                      {[].map((p) => (
                         <option key={p.id} value={p.id}>
                           {p.title}
                         </option>
@@ -148,7 +147,8 @@ export default function CreateTaskModal({ isOpen, onClose }) {
                       className="w-full px-4 py-2.5 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
                     >
                       <option value="">Select assignee</option>
-                      {mockUsers.map((u) => (
+                      {/* Replaced mock users with empty array placeholder */}
+                      {[].map((u) => (
                         <option key={u.id} value={u.id}>
                           {u.name}
                         </option>
