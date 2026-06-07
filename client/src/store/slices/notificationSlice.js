@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { mockNotifications } from "../../mock/notifications";
 
 const initialState = {
-  notifications: mockNotifications,
+  notifications: [],
   loading: false,
 };
 

@@ -8,13 +8,10 @@ import {
   PRIORITY_LABELS,
   PRIORITY_COLORS,
 } from "../../constants/status";
-import { mockUsers } from "../../mock/users";
 
 export default function ProjectCard({ project, index = 0 }) {
   const navigate = useNavigate();
-  const members = project.members
-    .map((id) => mockUsers.find((u) => u.id === id))
-    .filter(Boolean);
+  const members = []; // To be replaced with real user data
 
   return (
     <motion.div

@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { weeklyActivityData } from "../../mock/activities";
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -30,6 +29,8 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function WeeklyChart() {
+  const weeklyActivityData = []; // To be replaced with real chart data
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

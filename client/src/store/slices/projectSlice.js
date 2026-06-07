@@ -1,8 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { mockProjects } from "../../mock/projects";
 
 const initialState = {
-  projects: mockProjects,
+  projects: [],
   selectedProject: null,
   loading: false,
   error: null,

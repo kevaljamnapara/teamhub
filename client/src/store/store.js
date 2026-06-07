@@ -27,7 +27,7 @@ import uiReducer from "./slices/uiSlice";
 const authPersistConfig = {
   key: "auth",
   storage,
-  whitelist: ["user", "token", "isAuthenticated", "rememberMe"],
+  whitelist: ["user", "isAuthenticated", "rememberMe"],
 };
 
 const uiPersistConfig = {
