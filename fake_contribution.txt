@@ -110,3 +110,4 @@ Commit more 99
 Commit more 100
 
 refactor: optimize state management
+fix: resolve edge case in user auth
