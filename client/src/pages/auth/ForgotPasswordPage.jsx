@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from "lucide-react";
+import api from "../../services/api";
 
 const forgotSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -22,12 +23,21 @@ export default function ForgotPasswordPage() {
     resolver: zodResolver(forgotSchema),
   });
 
-  const onSubmit = () => {
+  const [error, setError] = useState(null);
+
+  const onSubmit = async (data) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError(null);
+    try {
+      await api.post("/auth/forgotpassword", data);
       setSubmitted(true);
-    }, 1000);
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Failed to send reset email. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (submitted) {
@@ -76,6 +86,16 @@ export default function ForgotPasswordPage() {
           No worries, we'll send you reset instructions.
         </p>
       </div>
+
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 rounded-xl bg-danger-50 dark:bg-danger-500/10 border border-danger-500/20 text-danger-600 dark:text-danger-500 text-sm"
+        >
+          {error}
+        </motion.div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div>
