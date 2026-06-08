@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { motion } from "framer-motion";
 import {
@@ -11,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 import {
+  fetchTasks,
   setSearchQuery,
   setStatusFilter,
   setPriorityFilter,
@@ -29,15 +30,23 @@ export default function TasksPage() {
   const dispatch = useDispatch();
   const tasks = useSelector(selectFilteredTasks);
   const selectedTask = useSelector((state) => state.tasks.selectedTask);
-  const { searchQuery, statusFilter, priorityFilter } = useSelector(
+  const { searchQuery, statusFilter, priorityFilter, loading, error } = useSelector(
     (state) => state.tasks
   );
   const [showCreate, setShowCreate] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
 
-  const handleDelete = (id) => {
-    dispatch(deleteTask(id));
-    toast.success("Task deleted");
+  useEffect(() => {
+    dispatch(fetchTasks());
+  }, [dispatch]);
+
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteTask(id)).unwrap();
+      toast.success("Task deleted");
+    } catch (err) {
+      toast.error(err || "Failed to delete task");
+    }
     setOpenMenuId(null);
   };
 
@@ -101,7 +110,11 @@ export default function TasksPage() {
       </div>
 
       {/* Task Table */}
-      {tasks.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : tasks.length > 0 ? (
         <div className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -130,7 +143,7 @@ export default function TasksPage() {
 
                   return (
                     <motion.tr
-                      key={task.id}
+                      key={task._id || task.id}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.03 }}
@@ -197,15 +210,16 @@ export default function TasksPage() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
+                            const taskId = task._id || task.id;
                             setOpenMenuId(
-                              openMenuId === task.id ? null : task.id
+                              openMenuId === taskId ? null : taskId
                             );
                           }}
                           className="p-1 rounded-lg hover:bg-[hsl(var(--accent))] text-[hsl(var(--muted-foreground))]"
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </button>
-                        {openMenuId === task.id && (
+                        {openMenuId === (task._id || task.id) && (
                           <div className="absolute right-4 top-full mt-1 w-36 py-1 bg-[hsl(var(--popover))] border border-[hsl(var(--border))] rounded-xl shadow-xl z-20">
                             <button
                               onClick={(e) => {
@@ -221,7 +235,7 @@ export default function TasksPage() {
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                handleDelete(task.id);
+                                handleDelete(task._id || task.id);
                               }}
                               className="flex items-center gap-2 w-full px-3 py-2 text-sm text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/10"
                             >
