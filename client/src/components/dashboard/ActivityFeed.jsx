@@ -8,7 +8,7 @@ import {
   GitBranch,
   AlertCircle,
 } from "lucide-react";
-import { formatRelativeTime, getInitials } from "../../utils";
+import { formatRelativeTime } from "../../utils";
 
 const ACTIVITY_ICONS = {
   task_created: { icon: CheckCircle2, color: "text-primary-500", bg: "bg-primary-500/10" },
@@ -21,9 +21,7 @@ const ACTIVITY_ICONS = {
   comment_added: { icon: MessageSquare, color: "text-blue-500", bg: "bg-blue-500/10" },
 };
 
-export default function ActivityFeed() {
-  const recentActivities = []; // To be replaced with real activity data
-
+export default function ActivityFeed({ activities = [] }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -35,48 +33,51 @@ export default function ActivityFeed() {
         <h3 className="text-base font-semibold text-[hsl(var(--foreground))]">
           Recent Activity
         </h3>
-        <button className="text-xs text-primary-500 hover:text-primary-600 font-medium transition-colors">
-          View all
-        </button>
       </div>
 
-      <div className="space-y-1">
-        {recentActivities.map((activity, index) => {
-          const config = ACTIVITY_ICONS[activity.type] || {
-            icon: AlertCircle,
-            color: "text-surface-400",
-            bg: "bg-surface-400/10",
-          };
-          const Icon = config.icon;
+      {activities.length > 0 ? (
+        <div className="space-y-1">
+          {activities.slice(0, 10).map((activity, index) => {
+            const config = ACTIVITY_ICONS[activity.type] || {
+              icon: AlertCircle,
+              color: "text-surface-400",
+              bg: "bg-surface-400/10",
+            };
+            const Icon = config.icon;
 
-          return (
-            <motion.div
-              key={activity.id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.05 * index }}
-              className="flex items-start gap-3 py-3 group"
-            >
-              <div
-                className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}
+            return (
+              <motion.div
+                key={activity.id || activity._id || index}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * index }}
+                className="flex items-start gap-3 py-3 group"
               >
-                <Icon className={`w-4 h-4 ${config.color}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-[hsl(var(--foreground))]">
-                  <span className="font-medium">{activity.userName}</span>{" "}
-                  <span className="text-[hsl(var(--muted-foreground))]">
-                    {activity.message}
-                  </span>
-                </p>
-                <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
-                  {formatRelativeTime(activity.createdAt)}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
+                <div
+                  className={`w-8 h-8 rounded-lg ${config.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}
+                >
+                  <Icon className={`w-4 h-4 ${config.color}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-[hsl(var(--foreground))]">
+                    <span className="font-medium">{activity.userName}</span>{" "}
+                    <span className="text-[hsl(var(--muted-foreground))]">
+                      {activity.message}
+                    </span>
+                  </p>
+                  <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                    {formatRelativeTime(activity.createdAt)}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-sm text-[hsl(var(--muted-foreground))]">
+          No recent activity yet. Create a project to get started!
+        </div>
+      )}
     </motion.div>
   );
 }

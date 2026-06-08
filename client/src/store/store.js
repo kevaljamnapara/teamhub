@@ -22,6 +22,8 @@ import authReducer from "./slices/authSlice";
 import projectReducer from "./slices/projectSlice";
 import taskReducer from "./slices/taskSlice";
 import notificationReducer from "./slices/notificationSlice";
+import usersReducer from "./slices/usersSlice";
+import dashboardReducer from "./slices/dashboardSlice";
 import uiReducer from "./slices/uiSlice";
 
 const authPersistConfig = {
@@ -41,6 +43,8 @@ const rootReducer = combineReducers({
   projects: projectReducer,
   tasks: taskReducer,
   notifications: notificationReducer,
+  users: usersReducer,
+  dashboard: dashboardReducer,
   ui: persistReducer(uiPersistConfig, uiReducer),
 });
 
