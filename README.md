@@ -1,4 +1,4 @@
-<![CDATA[# 🚀 TeamHub
+# 🚀 TeamHub
 
 A production-quality, full-stack SaaS team collaboration platform built with the **MERN stack** (MongoDB, Express, React, Node.js). TeamHub brings together project management, task tracking, real-time notifications, and team collaboration into a single unified workspace.
 
@@ -6,19 +6,19 @@ A production-quality, full-stack SaaS team collaboration platform built with the
 
 ## 📋 Table of Contents
 
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Prerequisites](#-prerequisites)
-- [Getting Started](#-getting-started)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
   - [1. Clone the Repository](#1-clone-the-repository)
   - [2. Server Setup](#2-server-setup)
   - [3. Client Setup](#3-client-setup)
   - [4. Run the Application](#4-run-the-application)
-- [Environment Variables](#-environment-variables)
-- [API Reference](#-api-reference)
-- [Available Scripts](#-available-scripts)
-- [License](#-license)
+- [Environment Variables](#environment-variables)
+- [API Reference](#api-reference)
+- [Available Scripts](#available-scripts)
+- [License](#license)
 
 ---
 
@@ -401,4 +401,3 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 <p align="center">
   Built with ❤️ by <a href="https://github.com/kevaljamnapara">Keval Jamnapara</a>
 </p>
-]]>
