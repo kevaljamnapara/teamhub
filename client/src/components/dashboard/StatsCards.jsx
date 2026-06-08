@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Clock,
 } from "lucide-react";
-import { useSelector } from "react-redux";
 
 const container = {
   hidden: { opacity: 0 },
@@ -20,46 +19,39 @@ const item = {
   show: { opacity: 1, y: 0 },
 };
 
-export default function StatsCards() {
-  const projects = useSelector((state) => state.projects.projects);
-  const tasks = useSelector((state) => state.tasks.tasks);
-
-  const stats = [
+export default function StatsCards({ stats }) {
+  const cards = [
     {
       label: "Total Projects",
-      value: projects.length,
+      value: stats?.totalProjects ?? 0,
       icon: FolderKanban,
       color: "from-primary-500 to-primary-600",
       bgColor: "bg-primary-500/10",
       textColor: "text-primary-500",
-      change: "+2 this month",
     },
     {
       label: "Total Tasks",
-      value: tasks.length,
+      value: stats?.totalTasks ?? 0,
       icon: CheckSquare,
       color: "from-violet-500 to-violet-600",
       bgColor: "bg-violet-500/10",
       textColor: "text-violet-500",
-      change: "+5 this week",
     },
     {
       label: "Completed",
-      value: tasks.filter((t) => t.status === "done").length,
+      value: stats?.completedTasks ?? 0,
       icon: CheckCircle2,
       color: "from-emerald-500 to-emerald-600",
       bgColor: "bg-emerald-500/10",
       textColor: "text-emerald-500",
-      change: "+3 this week",
     },
     {
       label: "Pending",
-      value: tasks.filter((t) => t.status === "todo" || t.status === "in_progress").length,
+      value: stats?.pendingTasks ?? 0,
       icon: Clock,
       color: "from-amber-500 to-amber-600",
       bgColor: "bg-amber-500/10",
       textColor: "text-amber-500",
-      change: "4 due soon",
     },
   ];
 
@@ -70,7 +62,7 @@ export default function StatsCards() {
       animate="show"
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
-      {stats.map((stat) => {
+      {cards.map((stat) => {
         const Icon = stat.icon;
         return (
           <motion.div
@@ -95,9 +87,6 @@ export default function StatsCards() {
               </p>
               <p className="text-sm text-[hsl(var(--muted-foreground))]">
                 {stat.label}
-              </p>
-              <p className={`text-xs ${stat.textColor} mt-2 font-medium`}>
-                {stat.change}
               </p>
             </div>
           </motion.div>
