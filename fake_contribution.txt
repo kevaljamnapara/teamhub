@@ -108,3 +108,7 @@ Commit more 97
 Commit more 98
 Commit more 99
 Commit more 100
+
+refactor: optimize state management
+fix: resolve edge case in user auth
+docs: update README with environment setup
