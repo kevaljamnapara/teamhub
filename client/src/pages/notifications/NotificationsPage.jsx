@@ -9,11 +9,13 @@ import {
   CheckCheck,
 } from "lucide-react";
 import {
-  markAsRead,
-  markAllAsRead,
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
   selectUnreadCount,
 } from "../../store/slices/notificationSlice";
 import { cn, formatRelativeTime } from "../../utils";
+import { useEffect } from "react";
 
 const NOTIF_ICONS = {
   task_assigned: { icon: CheckSquare, color: "text-primary-500", bg: "bg-primary-500/10" },
@@ -28,7 +30,12 @@ export default function NotificationsPage() {
   const notifications = useSelector(
     (state) => state.notifications.notifications
   );
+  const loading = useSelector((state) => state.notifications.loading);
   const unreadCount = useSelector(selectUnreadCount);
+
+  useEffect(() => {
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   return (
     <motion.div
@@ -50,7 +57,7 @@ export default function NotificationsPage() {
         </div>
         {unreadCount > 0 && (
           <button
-            onClick={() => dispatch(markAllAsRead())}
+            onClick={() => dispatch(markAllNotificationsRead())}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-primary-500 hover:bg-primary-500/10 transition-colors"
           >
             <CheckCheck className="w-4 h-4" />
@@ -60,7 +67,11 @@ export default function NotificationsPage() {
       </div>
 
       {/* Notifications list */}
-      {notifications.length > 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <div className="w-8 h-8 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+      ) : notifications.length > 0 ? (
         <div className="space-y-2">
           {notifications.map((notif, index) => {
             const config = NOTIF_ICONS[notif.type] || {
@@ -69,14 +80,15 @@ export default function NotificationsPage() {
               bg: "bg-surface-400/10",
             };
             const Icon = config.icon;
+            const notifId = notif._id || notif.id;
 
             return (
               <motion.div
-                key={notif.id}
+                key={notifId}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03 }}
-                onClick={() => dispatch(markAsRead(notif.id))}
+                onClick={() => dispatch(markNotificationRead(notifId))}
                 className={cn(
                   "flex items-start gap-4 p-4 rounded-xl border transition-all cursor-pointer",
                   notif.read

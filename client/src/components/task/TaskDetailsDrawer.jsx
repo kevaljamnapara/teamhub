@@ -1,7 +1,8 @@
 import { useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, User, MessageSquare, Clock } from "lucide-react";
-import { clearSelectedTask, updateTask, addComment } from "../../store/slices/taskSlice";
+import { clearSelectedTask, updateTask, addComment, fetchComments, deleteComment } from "../../store/slices/taskSlice";
+import FileUpload from "../common/FileUpload";
 import { cn, formatDate, formatRelativeTime, getInitials } from "../../utils";
 import {
   TASK_STATUS_LABELS,
@@ -9,7 +10,8 @@ import {
   PRIORITY_LABELS,
   PRIORITY_COLORS,
 } from "../../constants/status";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 
 export default function TaskDetailsDrawer({ task }) {
   const dispatch = useDispatch();
@@ -19,25 +21,46 @@ export default function TaskDetailsDrawer({ task }) {
 
   const handleClose = () => dispatch(clearSelectedTask());
 
-  const handleStatusChange = (newStatus) => {
-    dispatch(updateTask({ id: task.id, status: newStatus }));
+  useEffect(() => {
+    if (task) {
+      dispatch(fetchComments(task._id || task.id));
+    }
+  }, [dispatch, task?._id, task?.id]);
+
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await dispatch(updateTask({ id: task._id || task.id, status: newStatus })).unwrap();
+      toast.success("Status updated");
+    } catch (err) {
+      toast.error(err || "Failed to update status");
+    }
   };
 
-  const handleAddComment = (e) => {
+  const handleAddComment = async (e) => {
     e.preventDefault();
     if (!commentText.trim()) return;
-    dispatch(
-      addComment({
-        taskId: task.id,
-        comment: {
-          id: "c-" + Date.now(),
-          userId: "u1",
+    try {
+      await dispatch(
+        addComment({
+          taskId: task._id || task.id,
           text: commentText,
-          createdAt: new Date().toISOString(),
-        },
-      })
-    );
-    setCommentText("");
+        })
+      ).unwrap();
+      setCommentText("");
+    } catch (err) {
+      toast.error(err || "Failed to add comment");
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    try {
+      await dispatch(
+        deleteComment({ taskId: task._id || task.id, commentId })
+      ).unwrap();
+      toast.success("Comment deleted");
+    } catch (err) {
+      toast.error(err || "Failed to delete comment");
+    }
   };
 
   return (
@@ -168,11 +191,12 @@ export default function TaskDetailsDrawer({ task }) {
                 </h4>
                 <div className="space-y-3 mb-4">
                   {task.comments?.map((comment) => {
-                    const commenter = null; // To be replaced with real user data
+                    const commenter = comment.user || null;
+                    const commentId = comment._id || comment.id;
                     return (
-                      <div key={comment.id} className="flex gap-3">
+                      <div key={commentId} className="flex gap-3 group">
                         <div className="w-7 h-7 rounded bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-[10px] font-semibold flex-shrink-0">
-                          {getInitials(commenter?.name)}
+                          {getInitials(commenter?.name || "U")}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-0.5">
@@ -187,6 +211,12 @@ export default function TaskDetailsDrawer({ task }) {
                             {comment.text}
                           </p>
                         </div>
+                        <button
+                          onClick={() => handleDeleteComment(commentId)}
+                          className="opacity-0 group-hover:opacity-100 p-1.5 rounded text-[hsl(var(--muted-foreground))] hover:text-danger-500 hover:bg-danger-50 dark:hover:bg-danger-500/10 transition-all self-start"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     );
                   })}
@@ -198,20 +228,25 @@ export default function TaskDetailsDrawer({ task }) {
                 </div>
 
                 {/* Add comment */}
-                <form onSubmit={handleAddComment} className="flex gap-2">
-                  <input
-                    value={commentText}
-                    onChange={(e) => setCommentText(e.target.value)}
-                    placeholder="Add a comment..."
-                    className="flex-1 px-4 py-2 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                <div className="space-y-4">
+                  <FileUpload 
+                    onUploadSuccess={(url) => setCommentText(prev => prev + `\n\n![Attachment](${url})`)} 
                   />
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium transition-colors"
-                  >
-                    Send
-                  </button>
-                </form>
+                  <form onSubmit={handleAddComment} className="flex gap-2">
+                    <input
+                      value={commentText}
+                      onChange={(e) => setCommentText(e.target.value)}
+                      placeholder="Add a comment..."
+                      className="flex-1 px-4 py-2 rounded-xl border border-[hsl(var(--input))] bg-[hsl(var(--background))] text-[hsl(var(--foreground))] text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl bg-primary-500 hover:bg-primary-600 text-white text-sm font-medium transition-colors"
+                    >
+                      Send
+                    </button>
+                  </form>
+                </div>
               </div>
 
               {/* History */}
