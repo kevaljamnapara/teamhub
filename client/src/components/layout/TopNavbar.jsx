@@ -11,8 +11,8 @@ import {
   Sun,
   Moon,
 } from "lucide-react";
+import { fetchNotifications, selectUnreadCount } from "../../store/slices/notificationSlice";
 import { toggleMobileSidebar } from "../../store/slices/uiSlice";
-import { selectUnreadCount } from "../../store/slices/notificationSlice";
 import { logoutUser } from "../../store/slices/authSlice";
 import { useTheme } from "../../context/ThemeContext";
 import { cn, getInitials } from "../../utils";
@@ -36,8 +36,12 @@ export default function TopNavbar() {
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
+    
+    // Fetch notifications initially
+    dispatch(fetchNotifications());
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [dispatch]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
