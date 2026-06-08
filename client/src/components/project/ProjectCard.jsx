@@ -1,7 +1,10 @@
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { Users, Calendar, MoreHorizontal } from "lucide-react";
 import { cn, formatDate, getInitials } from "../../utils";
+import { selectAllUsers } from "../../store/slices/usersSlice";
 import {
   PROJECT_STATUS_LABELS,
   PROJECT_STATUS_COLORS,
@@ -11,7 +14,17 @@ import {
 
 export default function ProjectCard({ project, index = 0 }) {
   const navigate = useNavigate();
-  const members = []; // To be replaced with real user data
+  const allUsers = useSelector(selectAllUsers);
+
+  // Resolve member IDs to user objects
+  const members = useMemo(() => {
+    if (!project.members || !Array.isArray(project.members)) return [];
+    return project.members
+      .map((memberId) => allUsers.find((u) => u.id === memberId || u._id === memberId))
+      .filter(Boolean);
+  }, [project.members, allUsers]);
+
+  const progress = project.progress || 0;
 
   return (
     <motion.div
@@ -71,13 +84,13 @@ export default function ProjectCard({ project, index = 0 }) {
             Progress
           </span>
           <span className="text-xs font-medium text-[hsl(var(--foreground))]">
-            {project.progress}%
+            {progress}%
           </span>
         </div>
         <div className="h-2 bg-[hsl(var(--muted))] rounded-full overflow-hidden">
           <motion.div
             initial={{ width: 0 }}
-            animate={{ width: `${project.progress}%` }}
+            animate={{ width: `${progress}%` }}
             transition={{ delay: index * 0.05 + 0.3, duration: 0.8, ease: "easeOut" }}
             className="h-full rounded-full"
             style={{ backgroundColor: project.color }}
@@ -91,7 +104,7 @@ export default function ProjectCard({ project, index = 0 }) {
           <div className="flex -space-x-2">
             {members.slice(0, 3).map((member) => (
               <div
-                key={member.id}
+                key={member.id || member._id}
                 className="w-7 h-7 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-[10px] font-semibold border-2 border-[hsl(var(--card))]"
                 title={member.name}
               >
@@ -106,7 +119,7 @@ export default function ProjectCard({ project, index = 0 }) {
           </div>
           <span className="text-xs text-[hsl(var(--muted-foreground))]">
             <Users className="w-3 h-3 inline mr-1" />
-            {members.length}
+            {project.members?.length || 0}
           </span>
         </div>
 

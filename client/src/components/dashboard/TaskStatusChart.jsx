@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
 import {
   PieChart,
@@ -39,15 +38,8 @@ const CustomTooltip = ({ active, payload }) => {
   return null;
 };
 
-export default function TaskStatusChart() {
-  const tasks = useSelector((state) => state.tasks.tasks);
-
-  const data = Object.entries(
-    tasks.reduce((acc, task) => {
-      acc[task.status] = (acc[task.status] || 0) + 1;
-      return acc;
-    }, {})
-  ).map(([status, count]) => ({
+export default function TaskStatusChart({ tasksByStatus = {} }) {
+  const data = Object.entries(tasksByStatus).map(([status, count]) => ({
     name: LABELS[status] || status,
     value: count,
     color: COLORS[status] || "#94a3b8",
@@ -64,34 +56,40 @@ export default function TaskStatusChart() {
         Task Status
       </h3>
       <div className="h-[280px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={100}
-              paddingAngle={4}
-              dataKey="value"
-              strokeWidth={0}
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              verticalAlign="bottom"
-              height={36}
-              formatter={(value) => (
-                <span className="text-sm text-[hsl(var(--muted-foreground))]">
-                  {value}
-                </span>
-              )}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        {data.length > 0 ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={100}
+                paddingAngle={4}
+                dataKey="value"
+                strokeWidth={0}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <Legend
+                verticalAlign="bottom"
+                height={36}
+                formatter={(value) => (
+                  <span className="text-sm text-[hsl(var(--muted-foreground))]">
+                    {value}
+                  </span>
+                )}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-full text-sm text-[hsl(var(--muted-foreground))]">
+            No task data available yet.
+          </div>
+        )}
       </div>
     </motion.div>
   );

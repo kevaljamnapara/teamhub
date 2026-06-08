@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
-import { addProject } from "../../store/slices/projectSlice";
+import { createProject } from "../../store/slices/projectSlice";
 import toast from "react-hot-toast";
 
 const projectSchema = z.object({
@@ -20,6 +20,7 @@ const COLORS = ["#6366f1", "#8b5cf6", "#06b6d4", "#f43f5e", "#22c55e", "#f59e0b"
 export default function CreateProjectModal({ isOpen, onClose }) {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(null);
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
 
   const {
@@ -32,26 +33,36 @@ export default function CreateProjectModal({ isOpen, onClose }) {
     defaultValues: { priority: "medium" },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setLoading(true);
-    setTimeout(() => {
-      const newProject = {
-        id: "p-" + Date.now(),
-        ...data,
-        status: "active",
-        progress: 0,
-        createdAt: new Date().toISOString(),
-        members: ["u1"],
-        taskCount: 0,
-        completedTasks: 0,
-        color: selectedColor,
-      };
-      dispatch(addProject(newProject));
+    setApiError(null);
+    try {
+      await dispatch(
+        createProject({
+          title: data.title,
+          description: data.description,
+          dueDate: data.dueDate,
+          priority: data.priority,
+          color: selectedColor,
+        })
+      ).unwrap();
       toast.success("Project created successfully!");
-      setLoading(false);
       reset();
+      setSelectedColor(COLORS[0]);
       onClose();
-    }, 600);
+    } catch (err) {
+      setApiError(err || "Failed to create project.");
+      toast.error(err || "Failed to create project.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    setApiError(null);
+    reset();
+    setSelectedColor(COLORS[0]);
+    onClose();
   };
 
   return (
@@ -62,7 +73,7 @@ export default function CreateProjectModal({ isOpen, onClose }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
           />
           <motion.div
@@ -78,7 +89,7 @@ export default function CreateProjectModal({ isOpen, onClose }) {
                   Create New Project
                 </h2>
                 <button
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="p-1.5 rounded-lg hover:bg-[hsl(var(--accent))] text-[hsl(var(--muted-foreground))] transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -87,6 +98,13 @@ export default function CreateProjectModal({ isOpen, onClose }) {
 
               {/* Form */}
               <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+                {/* API Error */}
+                {apiError && (
+                  <div className="p-3 rounded-xl bg-danger-500/10 border border-danger-500/20 text-danger-600 dark:text-danger-400 text-sm">
+                    {apiError}
+                  </div>
+                )}
+
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
@@ -175,7 +193,7 @@ export default function CreateProjectModal({ isOpen, onClose }) {
                 <div className="flex justify-end gap-3 pt-2">
                   <button
                     type="button"
-                    onClick={onClose}
+                    onClick={handleClose}
                     className="px-4 py-2.5 rounded-xl text-sm font-medium text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent))] transition-colors"
                   >
                     Cancel
