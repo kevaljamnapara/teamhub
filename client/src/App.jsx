@@ -4,6 +4,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { Toaster } from "react-hot-toast";
 import { store, persistor } from "./store/store";
 import { ThemeProvider } from "./context/ThemeContext";
+import { SocketProvider } from "./context/SocketContext";
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
@@ -12,20 +13,22 @@ function App() {
       <PersistGate loading={null} persistor={persistor}>
         <BrowserRouter>
           <ThemeProvider>
-            <AppRoutes />
-            <Toaster
-              position="bottom-right"
-              toastOptions={{
-                duration: 3000,
-                style: {
-                  background: "hsl(var(--card))",
-                  color: "hsl(var(--foreground))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "12px",
-                  fontSize: "14px",
-                },
-              }}
-            />
+            <SocketProvider>
+              <AppRoutes />
+              <Toaster
+                position="bottom-right"
+                toastOptions={{
+                  duration: 3000,
+                  style: {
+                    background: "hsl(var(--card))",
+                    color: "hsl(var(--foreground))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "12px",
+                    fontSize: "14px",
+                  },
+                }}
+              />
+            </SocketProvider>
           </ThemeProvider>
         </BrowserRouter>
       </PersistGate>

@@ -3,9 +3,10 @@ import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { createTask } from "../../store/slices/taskSlice";
+import FileUpload from "../common/FileUpload";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
-import { addTask } from "../../store/slices/taskSlice";
 import toast from "react-hot-toast";
 
 const taskSchema = z.object({
@@ -26,6 +27,8 @@ export default function CreateTaskModal({ isOpen, onClose }) {
     register,
     handleSubmit,
     reset,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(taskSchema),
@@ -35,22 +38,24 @@ export default function CreateTaskModal({ isOpen, onClose }) {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     setLoading(true);
-    setTimeout(() => {
-      const newTask = {
-        id: "t-" + Date.now(),
-        ...data,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        comments: [],
-      };
-      dispatch(addTask(newTask));
+    try {
+      await dispatch(createTask(data)).unwrap();
       toast.success("Task created successfully!");
-      setLoading(false);
       reset();
       onClose();
-    }, 600);
+    } catch (error) {
+      toast.error(error || "Failed to create task");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUploadSuccess = (url) => {
+    const currentDescription = getValues("description") || "";
+    const attachmentMarkdown = `\n\n![Attachment](${url})`;
+    setValue("description", currentDescription + attachmentMarkdown, { shouldValidate: true });
   };
 
   return (
@@ -203,6 +208,14 @@ export default function CreateTaskModal({ isOpen, onClose }) {
                       <p className="mt-1.5 text-xs text-danger-500">{errors.dueDate.message}</p>
                     )}
                   </div>
+                </div>
+
+                {/* Attachments Upload */}
+                <div>
+                  <label className="block text-sm font-medium text-[hsl(var(--foreground))] mb-2">
+                    Attachments (Optional)
+                  </label>
+                  <FileUpload onUploadSuccess={handleUploadSuccess} />
                 </div>
 
                 {/* Actions */}
