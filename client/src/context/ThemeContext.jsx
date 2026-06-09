@@ -1,3 +1,4 @@
+/** Theme Management Context */
 import { createContext, useContext, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setTheme } from "../store/slices/uiSlice";
