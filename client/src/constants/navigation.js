@@ -1,3 +1,4 @@
+/** Main Navigation Configuration */
 import {
   LayoutDashboard,
   FolderKanban,
