@@ -1,3 +1,4 @@
+/** User Activity Feed Component */
 import { motion } from "framer-motion";
 import {
   CheckCircle2,
