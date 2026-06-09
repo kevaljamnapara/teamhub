@@ -1,3 +1,4 @@
+/** Task and Project Status Definitions */
 export const TASK_STATUS = {
   TODO: "todo",
   IN_PROGRESS: "in_progress",
