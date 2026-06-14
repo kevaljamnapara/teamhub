@@ -1,3 +1,4 @@
+/** Task Status Visual Indicator */
 import { cn } from "../../utils";
 import { TASK_STATUS_LABELS, TASK_STATUS_COLORS } from "../../constants/status";
 
