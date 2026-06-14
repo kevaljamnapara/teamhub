@@ -1,3 +1,4 @@
+/** Application Sidebar Component */
 import { NavLink, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
