@@ -1,3 +1,4 @@
+/** Modal Component for Project Creation */
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
