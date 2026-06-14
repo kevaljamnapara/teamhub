@@ -1,3 +1,4 @@
+/** Dashboard Statistics Cards Component */
 import { motion } from "framer-motion";
 import {
   FolderKanban,
