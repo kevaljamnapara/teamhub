@@ -1,3 +1,4 @@
+/** Authentication Views Layout */
 import { Outlet, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { motion } from "framer-motion";
