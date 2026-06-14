@@ -1,3 +1,4 @@
+/** Hook for Responsive Media Queries */
 import { useState, useEffect } from "react";
 
 export function useMediaQuery(query) {
