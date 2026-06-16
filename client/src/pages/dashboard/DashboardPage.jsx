@@ -13,6 +13,10 @@ import TaskStatusChart from "../../components/dashboard/TaskStatusChart";
 import WeeklyChart from "../../components/dashboard/WeeklyChart";
 import ActivityFeed from "../../components/dashboard/ActivityFeed";
 
+/**
+ * DashboardPage Component
+ * Displays system overview, statistics, and activity feeds.
+ */
 export default function DashboardPage() {
   const dispatch = useDispatch();
   const stats = useSelector(selectDashboardStats);
