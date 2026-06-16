@@ -256,6 +256,11 @@ export const {
   commentAdded,
 } = taskSlice.actions;
 
+/**
+ * Selector to filter tasks based on search query, status, priority, and project
+ * @param {Object} state - The Redux state object
+ * @returns {Array} Array of filtered task objects
+ */
 export const selectFilteredTasks = (state) => {
   let tasks = state.tasks.tasks;
   const query = state.tasks.searchQuery.toLowerCase();
