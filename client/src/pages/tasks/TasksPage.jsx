@@ -26,6 +26,10 @@ import { cn, formatDate, getInitials } from "../../utils";
 import { PRIORITY_LABELS, PRIORITY_COLORS } from "../../constants/status";
 import toast from "react-hot-toast";
 
+/**
+ * TasksPage Component
+ * Main page for viewing, filtering, and managing tasks.
+ */
 export default function TasksPage() {
   const dispatch = useDispatch();
   const tasks = useSelector(selectFilteredTasks);
