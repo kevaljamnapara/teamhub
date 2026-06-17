@@ -4,6 +4,10 @@ import { cn } from "../../utils";
 import api from "../../services/api";
 import toast from "react-hot-toast";
 
+/**
+ * FileUpload Component
+ * Reusable drag-and-drop file upload component with preview and progress tracking.
+ */
 export default function FileUpload({ onUploadSuccess, accept = "image/*", maxSizeMB = 5 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState(null);
