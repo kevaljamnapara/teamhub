@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * Mongoose schema for user sessions.
+ * Tracks refresh tokens, device info, and IP for security.
+ */
 const sessionSchema = new mongoose.Schema(
   {
     userId: {
