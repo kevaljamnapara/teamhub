@@ -1,4 +1,4 @@
-/** Weekly Progress Chart */
+/** Weekly Activity Chart Visualization */
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import {

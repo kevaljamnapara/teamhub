@@ -1,3 +1,4 @@
+/** Slide-out Drawer for Task Details */
 import { useDispatch } from "react-redux";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, User, MessageSquare, Clock } from "lucide-react";

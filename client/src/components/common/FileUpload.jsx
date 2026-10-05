@@ -1,3 +1,4 @@
+/** Reusable File Upload Component */
 import { useState, useCallback } from "react";
 import { UploadCloud, X, Loader2, Image as ImageIcon, FileText } from "lucide-react";
 import { cn } from "../../utils";

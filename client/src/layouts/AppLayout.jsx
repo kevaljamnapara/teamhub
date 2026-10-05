@@ -1,3 +1,4 @@
+/** Main Application Layout Wrapper */
 import { Outlet } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { AnimatePresence, motion } from "framer-motion";
